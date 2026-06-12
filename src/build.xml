@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AppletBuild" default="build">
+
+    <property name="jc.home" value="/Users/hocc/JavaCard"/>
+    <property name="jc.ant.jar" value="${jc.home}/ant-javacard.jar"/>
+    <property name="jc.sdk.path" value="${jc.home}/oracle_javacard_sdks/jc221_kit"/>
+
+    <taskdef name="javacard" classname="pro.javacard.ant.JavaCard"
+             classpath="${jc.ant.jar}"/>
+
+    <target name="build">
+        <javacard>
+            <cap
+                    jckit="${jc.sdk.path}"
+                    sources="Applet"
+                    package="Applet"
+                    aid="0102030405"
+                    version="1.0"
+                    output="AppletTest.cap">
+                <applet class="Applet.CardApplet"
+                        aid="0102030405060708"/>
+            </cap>
+        </javacard>
+    </target>
+</project>
