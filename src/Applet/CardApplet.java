@@ -22,7 +22,7 @@ public class CardApplet extends Applet {
             byte[] buffer = apdu.getBuffer();
 
             // Set the custom response payload byte: 0x01
-            buffer[0] = (byte) 0x01;
+            buffer[0] = (byte) 0x02;
 
             // Send 1 byte from the buffer starting at index 0.
             // The JCRE will automatically append the success status word 90 00,
