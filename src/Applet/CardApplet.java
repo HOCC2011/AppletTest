@@ -1,18 +1,18 @@
 package Applet;
 
-import javacard.framework.APDU;
-import javacard.framework.Applet;
-import javacard.framework.ISO7816;
+import javacard.framework.*;
 
 
 public class CardApplet extends Applet {
 
+    private byte[] counter;
+
     protected CardApplet() {
-        register();
+        counter = new byte[4];
     }
 
     public static void install(byte[] bArray, short bOffset, byte bLength) {
-        new CardApplet();
+        new CardApplet().register();
     }
 
     public void process(APDU apdu) {
@@ -21,13 +21,19 @@ public class CardApplet extends Applet {
         if (selectingApplet()) {
             byte[] buffer = apdu.getBuffer();
 
+            JCSystem.beginTransaction();
+
+            incrementCounter(counter);
+
+            JCSystem.commitTransaction();
+
             // Set the custom response payload byte: 0x01
-            buffer[0] = (byte) 0x02;
+            Util.arrayCopyNonAtomic(counter, (short)0, buffer, (short) 0, (short) 4);
 
             // Send 1 byte from the buffer starting at index 0.
             // The JCRE will automatically append the success status word 90 00,
             // resulting in a total response of: 01 90 00
-            apdu.setOutgoingAndSend((short) 0, (short) 1);
+            apdu.setOutgoingAndSend((short) 0, (short) 4);
             return;
         }
 
@@ -36,5 +42,13 @@ public class CardApplet extends Applet {
 
         // Echo back incoming data for any subsequent APDUs
         apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, lc);
+    }
+
+    private void incrementCounter(byte[] cnt) {
+        for (short i = 3; i >= 0; i--) {
+            short val = (short) ((cnt[i] & 0xFF) + 1);
+            cnt[i] = (byte) val;
+            if (val <= 0xFF) break;
+        }
     }
 }
